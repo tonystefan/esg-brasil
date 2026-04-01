@@ -39,21 +39,23 @@ export const metadata: Metadata = {
     site: "@esgbrasil",
   },
   robots: { index: true, follow: true },
+  other: {
+    "google-adsense-account": "ca-pub-9112303692826966",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
   return (
     <html lang="pt-BR" className={`${inter.variable} ${sora.variable}`}>
-      <head>
+      <body className="min-h-screen flex flex-col bg-white font-sans antialiased">
         <Script
+          id="adsense"
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9112303692826966"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
-      </head>
-      <body className="min-h-screen flex flex-col bg-white font-sans antialiased">
         {gaId && (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
