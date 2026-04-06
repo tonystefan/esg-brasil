@@ -1,65 +1,101 @@
-import Image from "next/image";
+import { HeroSection } from "@/components/home/HeroSection";
+import { FeaturedNews } from "@/components/home/FeaturedNews";
+import { CategorySection } from "@/components/home/CategorySection";
+import { CTABanner } from "@/components/home/CTABanner";
+import { NormasSection } from "@/components/home/NormasSection";
+import { NewsletterSignup } from "@/components/home/NewsletterSignup";
+import { AdSlot } from "@/components/ui/AdSlot";
+import { getAllArticles, getArticlesByCategory, getFeaturedArticles } from "@/lib/articles";
+import { getAllNormas } from "@/lib/normas";
+import type { Metadata } from "next";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "ESG Brasil — Referência em ESG e SST no Brasil",
+  description: "Notícias, análises e ferramentas sobre ESG (Environmental, Social and Governance) e SST (Saúde e Segurança do Trabalho) para profissionais e empresas brasileiras.",
+};
+
+export default function HomePage() {
+  const allArticles = getAllArticles();
+  const featuredArticles = getFeaturedArticles();
+  const mainFeatured = featuredArticles[0] || allArticles[0];
+  const normas = getAllNormas();
+
+  const envArticles = getArticlesByCategory("E");
+  const socialArticles = getArticlesByCategory("S");
+  const govArticles = getArticlesByCategory("G");
+  const sstArticles = getArticlesByCategory("SST");
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "ESG Brasil",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://esgbrasil.com.br",
+    description: "Portal de referência em ESG e SST no Brasil",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${process.env.NEXT_PUBLIC_SITE_URL || "https://esgbrasil.com.br"}/noticias?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      {/* Hero */}
+      <HeroSection featuredArticle={mainFeatured} />
+
+      {/* Ad slot - after hero */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <AdSlot position="header" />
+      </div>
+
+      {/* Featured News Grid */}
+      <FeaturedNews articles={allArticles.slice(0, 4)} />
+
+      {/* CTA Banner */}
+      <CTABanner />
+
+      {/* Por Categoria */}
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Por categoria</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900" style={{ fontFamily: "var(--font-sora, system-ui)" }}>
+            Explore por tema
+          </h2>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="mt-10 space-y-14">
+          {envArticles.length > 0 && (
+            <CategorySection category="E" articles={envArticles} description="Clima, carbono e meio ambiente" />
+          )}
+          <div className="border-t border-gray-100 pt-14">
+            {socialArticles.length > 0 && (
+              <CategorySection category="S" articles={socialArticles} description="Pessoas, diversidade e comunidade" />
+            )}
+          </div>
+          <div className="border-t border-gray-100 pt-14">
+            {govArticles.length > 0 && (
+              <CategorySection category="G" articles={govArticles} description="Ética, transparência e compliance" />
+            )}
+          </div>
+          <div className="border-t border-gray-100 pt-14">
+            {sstArticles.length > 0 && (
+              <CategorySection category="SST" articles={sstArticles} description="NRs, riscos e bem-estar" />
+            )}
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* Normas em Foco */}
+      <NormasSection normas={normas} />
+
+      {/* Ad slot - before newsletter */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <AdSlot position="in-content" />
+      </div>
+
+      {/* Newsletter */}
+      <NewsletterSignup />
+    </>
   );
 }
